@@ -1,5 +1,29 @@
 - name: My first play
   hosts: myhosts
+  vars:
+    hostname: "ballz2"
+
+    sw_subnet: 10.0.0.1/24
+    sw_router: 10.0.0.1
+    sw_range_end: 10.0.0.255
+    
+    mgmt_subnet: 10.110.0.1/24
+    mgmt_router: 10.110.0.1
+    mgmt_range_end: 10.110.0.255
+    
+    client_subnet: 10.111.0.1/24
+    client_router: 10.111.0.1
+    client_range_end: 10.111.0.255
+    
+    iot_subnet: 10.112.0.1/24
+    iot_router: 10.112.0.1
+    iot_range_end: 10.112.0.255
+    
+    private_subnet: 10.113.0.1/24
+    private_router: 10.113.0.1
+    private_range_end: 10.113.0.255
+
+
   tasks:
     # - name: Ping my hosts
     #   ansible.builtin.ping:
@@ -40,41 +64,48 @@
 
     # create firewall rules 
 
-    - name: test 4
+    - name: Enter config mode 
       community.network.edgeos_command: 
         commands: |
           configure
-          set system host-name newhostname
-          
-          set service dhcp-server shared-network-name LAN subnet 10.0.0.1/24 default-router 10.0.0.1
-          set service dhcp-server shared-network-name LAN subnet 10.0.0.1/24 dns-server 1.1.1.1 
-          set service dhcp-server shared-network-name LAN subnet 10.0.0.1/24 lease 86400       
-          set service dhcp-server shared-network-name LAN subnet 10.0.0.1/24 start 10.0.0.1 stop 10.0.0.255
+
+    - name: Set hostname 
+      community.network.edgeos_command: 
+        commands: |
+          set system host-name {{ hostname }}
+  
+    - name: Update interfaces 
+      community.network.edgeos_command:
+        commands: | 
+          set service dhcp-server shared-network-name LAN subnet {{ sw_subnet }} default-router {{ sw_router }}
+          set service dhcp-server shared-network-name LAN subnet {{ sw_subnet }} dns-server 1.1.1.1 
+          set service dhcp-server shared-network-name LAN subnet {{ sw_subnet }} lease 86400       
+          set service dhcp-server shared-network-name LAN subnet {{ sw_subnet }} start {{ sw_router }} stop {{ sw_range_end }}
 
           delete service dhcp-server shared-network-name LAN subnet 192.168.2.0/24 
           
-          set interfaces switch switch0 address 10.0.0.1/24
+          set interfaces switch switch0 address {{ sw_subnet }}
           delete interfaces switch switch0 address 192.168.2.1/24
 
-          set interfaces switch switch0 vif 110 address 10.110.0.1/24
-          set service dhcp-server shared-network-name PCW_MGMT_DHCP subnet 10.110.0.1/24 start 10.110.0.10 stop 10.110.0.150
-          set service dhcp-server shared-network-name PCW_MGMT_DHCP subnet 10.110.0.1/24 default-router 10.110.0.1
-          set service dhcp-server shared-network-name PCW_MGMT_DHCP subnet 10.110.0.1/24 dns-server 1.1.1.1
+          set interfaces switch switch0 vif 110 address {{ mgmt_subnet }}
+          set service dhcp-server shared-network-name PCW_MGMT_DHCP subnet {{ mgmt_subnet }} start {{ mgmt_router }} stop {{ mgmt_range_end }}
+          set service dhcp-server shared-network-name PCW_MGMT_DHCP subnet {{ mgmt_subnet }} default-router {{ mgmt_router }}
+          set service dhcp-server shared-network-name PCW_MGMT_DHCP subnet {{ mgmt_subnet }} dns-server 1.1.1.1
 
-          set interfaces switch switch0 vif 111 address 10.111.0.1/24
-          set service dhcp-server shared-network-name PCW_CLIENT_DHCP subnet 10.111.0.1/24 start 10.111.0.10 stop 10.111.0.150
-          set service dhcp-server shared-network-name PCW_CLIENT_DHCP subnet 10.111.0.1/24 default-router 10.111.0.1
-          set service dhcp-server shared-network-name PCW_CLIENT_DHCP subnet 10.111.0.1/24 dns-server 1.1.1.1
+          set interfaces switch switch0 vif 111 address {{ client_subnet }}
+          set service dhcp-server shared-network-name PCW_CLIENT_DHCP subnet {{ client_subnet }} start {{ client_router }} stop {{ client_range_end }}
+          set service dhcp-server shared-network-name PCW_CLIENT_DHCP subnet {{ client_subnet }} default-router {{ client_router }}
+          set service dhcp-server shared-network-name PCW_CLIENT_DHCP subnet {{ client_subnet }} dns-server 1.1.1.1
 
-          set interfaces switch switch0 vif 112 address 10.112.0.1/24
-          set service dhcp-server shared-network-name PCW_IOT_DHCP subnet 10.112.0.1/24 start 10.112.0.10 stop 10.112.0.150
-          set service dhcp-server shared-network-name PCW_IOT_DHCP subnet 10.112.0.1/24 default-router 10.112.0.1
-          set service dhcp-server shared-network-name PCW_IOT_DHCP subnet 10.112.0.1/24 dns-server 1.1.1.1
+          set interfaces switch switch0 vif 112 address {{ iot_subnet }}
+          set service dhcp-server shared-network-name PCW_IOT_DHCP subnet {{ iot_subnet }} start {{ iot_router }} stop {{ iot_range_end }}
+          set service dhcp-server shared-network-name PCW_IOT_DHCP subnet {{ iot_subnet }} default-router {{ iot_router }}
+          set service dhcp-server shared-network-name PCW_IOT_DHCP subnet {{ iot_subnet }} dns-server 1.1.1.1
 
-          set interfaces switch switch0 vif 113 address 10.113.0.1/24
-          set service dhcp-server shared-network-name PCW_PRIVATE_DHCP subnet 10.113.0.1/24 start 10.113.0.10 stop 10.113.0.150
-          set service dhcp-server shared-network-name PCW_PRIVATE_DHCP subnet 10.113.0.1/24 default-router 10.113.0.1
-          set service dhcp-server shared-network-name PCW_PRIVATE_DHCP subnet 10.113.0.1/24 dns-server 1.1.1.1
+          set interfaces switch switch0 vif 113 address {{ private_subnet }}
+          set service dhcp-server shared-network-name PCW_PRIVATE_DHCP subnet {{ private_subnet }} start {{ private_router }} stop {{ private_range_end }}
+          set service dhcp-server shared-network-name PCW_PRIVATE_DHCP subnet {{ private_subnet }} default-router {{ private_router }}
+          set service dhcp-server shared-network-name PCW_PRIVATE_DHCP subnet {{ private_subnet }} dns-server 1.1.1.1
 
           set interfaces switch switch0 switch-port vlan-aware enable
           set interfaces switch switch0 switch-port interface eth2 vlan vid 1
@@ -83,6 +114,112 @@
           set interfaces switch switch0 switch-port interface eth2 vlan vid 112
           set interfaces switch switch0 switch-port interface eth2 vlan vid 113
 
+    - name: Configure firewall for client VLAN 
+      community.network.edgeos_command:
+        commands: |
+          set firewall name clients_local default-action accept 
+
+          set firewall name clients_local rule 10 action reject 
+          set firewall name clients_local rule 10 source group address-group NETv4_switch0.111
+          set firewall name clients_local rule 10 destination address {{ client_subnet }} 
+          set firewall name clients_local rule 10 destination port 443
+          set firewall name clients_local rule 10 protocol tcp_udp
+
+          set firewall name clients_local rule 11 action reject 
+          set firewall name clients_local rule 11 source group address-group NETv4_switch0.111
+          set firewall name clients_local rule 11 destination address {{ client_subnet }}
+          set firewall name clients_local rule 11 destination port 22
+          set firewall name clients_local rule 11 protocol tcp_udp
+
+          set firewall name clients_local rule 12 action reject 
+          set firewall name clients_local rule 12 source group address-group NETv4_switch0.111
+          set firewall name clients_local rule 12 destination group address-group NETv4_switch0.110
+          set firewall name clients_local rule 12 protocol tcp_udp 
+
+          set firewall name clients_local rule 13 action reject 
+          set firewall name clients_local rule 13 source group address-group NETv4_switch0.111
+          set firewall name clients_local rule 13 destination group address-group NETv4_switch0.112
+          set firewall name clients_local rule 13 protocol tcp_udp 
+
+          set firewall name clients_local rule 14 action reject 
+          set firewall name clients_local rule 14 source group address-group NETv4_switch0.111
+          set firewall name clients_local rule 14 destination group address-group NETv4_switch0.113
+          set firewall name clients_local rule 14 protocol tcp_udp 
+
+          set interfaces switch switch0 vif 111 firewall local name clients_local 
+
+    - name: Configure firewall for IoT VLAN
+      community.network.edgeos_command:
+        commands: |
+          set firewall name iot_local default-action accept 
+
+          set firewall name iot_local rule 10 action reject 
+          set firewall name iot_local rule 10 source group address-group NETv4_switch0.112
+          set firewall name iot_local rule 10 destination address {{ iot_subnet }}
+          set firewall name iot_local rule 10 destination port 443
+          set firewall name iot_local rule 10 protocol tcp_udp
+
+          set firewall name iot_local rule 11 action reject 
+          set firewall name iot_local rule 11 source group address-group NETv4_switch0.112
+          set firewall name iot_local rule 11 destination address {{ iot_subnet }}
+          set firewall name iot_local rule 11 destination port 22
+          set firewall name iot_local rule 11 protocol tcp_udp
+
+          set firewall name iot_local rule 12 action reject 
+          set firewall name iot_local rule 12 source group address-group NETv4_switch0.112
+          set firewall name iot_local rule 12 destination group address-group NETv4_switch0.110
+          set firewall name iot_local rule 12 protocol tcp_udp 
+
+          set firewall name iot_local rule 13 action reject 
+          set firewall name iot_local rule 13 source group address-group NETv4_switch0.112
+          set firewall name iot_local rule 13 destination group address-group NETv4_switch0.111
+          set firewall name iot_local rule 13 protocol tcp_udp 
+
+          set firewall name iot_local rule 14 action reject 
+          set firewall name iot_local rule 14 source group address-group NETv4_switch0.112
+          set firewall name iot_local rule 14 destination group address-group NETv4_switch0.113
+          set firewall name iot_local rule 14 protocol tcp_udp 
+
+          set interfaces switch switch0 vif 112 firewall local name iot_local
+
+    - name: Configure firewall for Private VLAN
+      community.network.edgeos_command:
+        commands: |
+          set firewall name private_local default-action accept 
+
+          set firewall name private_local rule 10 action reject 
+          set firewall name private_local rule 10 source group address-group NETv4_switch0.113
+          set firewall name private_local rule 10 destination address {{ private_subnet }}
+          set firewall name private_local rule 10 destination port 443
+          set firewall name private_local rule 10 protocol tcp_udp
+
+          set firewall name private_local rule 11 action reject 
+          set firewall name private_local rule 11 source group address-group NETv4_switch0.113
+          set firewall name private_local rule 11 destination address {{ private_subnet }}
+          set firewall name private_local rule 11 destination port 22
+          set firewall name private_local rule 11 protocol tcp_udp
+
+          set firewall name private_local rule 12 action reject 
+          set firewall name private_local rule 12 source group address-group NETv4_switch0.113
+          set firewall name private_local rule 12 destination group address-group NETv4_switch0.110
+          set firewall name private_local rule 12 protocol tcp_udp 
+
+          set firewall name private_local rule 13 action reject 
+          set firewall name private_local rule 13 source group address-group NETv4_switch0.113
+          set firewall name private_local rule 13 destination group address-group NETv4_switch0.112
+          set firewall name private_local rule 13 protocol tcp_udp 
+
+          set firewall name private_local rule 14 action reject 
+          set firewall name private_local rule 14 source group address-group NETv4_switch0.113
+          set firewall name private_local rule 14 destination group address-group NETv4_switch0.111
+          set firewall name private_local rule 14 protocol tcp_udp 
+
+          set interfaces switch switch0 vif 113 firewall local name private_local 
+
+    - name: Save changes 
+      community.network.edgeos_command:
+        commands: |
           commit 
           save 
+
 
