@@ -1,6 +1,11 @@
-- name: My first play
+- name: Configure EdgeOS router
   hosts: myhosts
-  tasks:
+  roles:
+    - common
+    - networks
+    - firewall
+    - save
+
     # - name: Ping my hosts
     #   ansible.builtin.ping:
 

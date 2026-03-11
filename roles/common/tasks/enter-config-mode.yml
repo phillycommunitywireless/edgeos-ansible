@@ -1,4 +1,4 @@
 - name: Enter configure mode
-  community.network.edgeos_command: 
-  commands: |
-    configure
+  community.network.edgeos_command:
+    commands: |
+      configure

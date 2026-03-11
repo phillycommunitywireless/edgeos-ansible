@@ -1,0 +1,2 @@
+- import_tasks: enter-config-mode.yml
+- import_tasks: set-hostname.yml
