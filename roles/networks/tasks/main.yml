@@ -7,10 +7,10 @@
       set service dhcp-server shared-network-name LAN subnet {{ sw_subnet }} lease 86400       
       set service dhcp-server shared-network-name LAN subnet {{ sw_subnet }} start {{ sw_router }} stop {{ sw_range_end }}
 
-      delete service dhcp-server shared-network-name LAN subnet 192.168.2.0/24 
+      delete service dhcp-server shared-network-name LAN subnet {{ old_sw_dhcp_server_subnet }}
       
       set interfaces switch switch0 address {{ sw_subnet }}
-      delete interfaces switch switch0 address 192.168.2.1/24
+      delete interfaces switch switch0 address {{ old_sw_address }}
 
       set interfaces switch switch0 vif 110 address {{ mgmt_subnet }}
       set service dhcp-server shared-network-name PCW_MGMT_DHCP subnet {{ mgmt_subnet }} start {{ mgmt_router }} stop {{ mgmt_range_end }}

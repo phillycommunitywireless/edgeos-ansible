@@ -4,12 +4,19 @@ myhosts:
       ansible_connection: network_cli 
       ansible_network_os: edgeos
       ansible_host: 192.168.2.1  
-      # ansible_host: 10.0.0.1
+      # ERX login
       ansible_user: ubnt
       ansible_password: ubnt
       ansible_python_interpreter: /usr/bin/python
+      
+      # New hostname to set 
       hostname: "some-hostname"
 
+      # Initial DHCP server/sw0 address - to be deleted...
+      old_sw_dhcp_server_subnet: 192.168.2.0/24
+      old_sw_address: 192.168.2.1/24
+
+      # New DHCP server/switch subnets and vlans to set 
       sw_subnet: 10.0.0.1/24
       sw_router: 10.0.0.1
       sw_range_end: 10.0.0.255
