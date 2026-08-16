@@ -1,5 +1,5 @@
 - name: Configure EdgeOS router
-  hosts: myhosts
+  hosts: edgerouters
   roles:
     - role: common 
       tags: 
@@ -13,5 +13,3 @@
     - role: save
       tags:
         - always
-
-
