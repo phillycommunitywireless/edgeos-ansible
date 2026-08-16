@@ -4,12 +4,17 @@
   roles:
     - node_exporter
 
-- name: Deploy monitoring stack
+- name: install Prometheus
+  hosts: servers
+  become: yes
+  roles:
+  - prometheus
+
+- name: Install and configure Grafana
   hosts: servers
   become: true
   vars:
-    grafana_admin_password: "{{grafana_password}}"
-    grafana_secret_key: "{{grafana_key}}"
+    grafana_admin_password: "{{ vault_grafana_admin_password }}"
     grafana_domain: "grafana.mycompany.com"
     grafana_datasources:
       - name: Prometheus
@@ -22,7 +27,4 @@
       - grafana-clock-panel
       - grafana-polystat-panel
   roles:
-    - prometheus
-    - snmp_exporter
     - grafana
-

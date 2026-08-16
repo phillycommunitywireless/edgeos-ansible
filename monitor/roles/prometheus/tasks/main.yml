@@ -1,16 +1,27 @@
-global:
-  scrape_interval: 15s 
-  evaluation_interval: 15s
-
-scrape_configs:
-  - job_name: 'snmp'
-    static_configs:
-      - targets: [] 
-    metrics_path: /snmp
-    params:
-      module: [if_mib]
-    relabel_configs:
-      - source_labels: [__address__]
-        target_label: __param_target
-      - target_label: __address__
-        replacement: 127.0.0.1:9116
+- name: update and install prometheus
+  apt:
+    name: prometheus
+    state: latest
+    update_cache: yes
+    cache_valid_time: 3600
+- name: prometheus args
+  template:
+    src: prometheus.j2
+    dest: /etc/default/prometheus
+    mode: 0644
+    owner: root
+    group: root
+  notify: restart_prometheus
+- name: prometheus configuration file
+  template:
+    src: prometheus.yml.j2
+    dest: "{{ prometheus_dir_configuration }}/prometheus.yml"
+    mode: 0644
+    owner: prometheus
+    group: prometheus
+  notify: reload_prometheus
+- name: start prometheus
+  systemd:
+    name: prometheus
+    state: started
+    enabled: yes

@@ -1,0 +1,14 @@
+# roles/grafana/tasks/plugins.yml
+---
+- name: Get list of installed plugins
+  ansible.builtin.command: grafana-cli plugins ls
+  register: installed_plugins
+  changed_when: false
+  become: true
+
+- name: Install Grafana plugins
+  ansible.builtin.command: "grafana-cli plugins install {{ item }}"
+  loop: "{{ grafana_plugins }}"
+  when: item not in installed_plugins.stdout
+  become: true
+  notify: Restart grafana

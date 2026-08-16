@@ -1,0 +1,30 @@
+# roles/grafana/templates/datasource.yml.j2
+# Datasource provisioning - managed by Ansible
+apiVersion: 1
+
+deleteDatasources: []
+
+datasources:
+{% for ds in grafana_datasources %}
+  - name: {{ ds.name }}
+    type: {{ ds.type }}
+    access: {{ ds.access | default('proxy') }}
+    url: {{ ds.url }}
+    isDefault: {{ ds.is_default | default(false) | string | lower }}
+    editable: {{ ds.editable | default(false) | string | lower }}
+{% if ds.database is defined %}
+    database: {{ ds.database }}
+{% endif %}
+{% if ds.basic_auth is defined and ds.basic_auth %}
+    basicAuth: true
+    basicAuthUser: {{ ds.basic_auth_user }}
+    secureJsonData:
+      basicAuthPassword: {{ ds.basic_auth_password }}
+{% endif %}
+{% if ds.json_data is defined %}
+    jsonData:
+{% for key, value in ds.json_data.items() %}
+      {{ key }}: {{ value }}
+{% endfor %}
+{% endif %}
+{% endfor %}

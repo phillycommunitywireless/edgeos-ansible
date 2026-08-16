@@ -1,0 +1,11 @@
+# roles/grafana/tasks/datasources.yml
+---
+- name: Deploy datasource provisioning file
+  ansible.builtin.template:
+    src: datasource.yml.j2
+    dest: /etc/grafana/provisioning/datasources/ansible.yml
+    owner: root
+    group: grafana
+    mode: "0640"
+  become: true
+  notify: Restart grafana
