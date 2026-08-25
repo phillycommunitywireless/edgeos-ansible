@@ -1,0 +1,30 @@
+- name: Create new Linodes in VPC
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    vpc_subnet_id: 12345 # Replace with actual
+    new_linodes:
+      - node-1 # Rename as needed
+      - node-2
+      - node-3
+  tasks:
+    - name: Create Linode instances
+      linode.cloud.instance:
+        api_token: "{{ vault_linode_token }}" # in vault.yml (blank for now)
+        label: "{{ item }}" # Nodes
+        region: us-east
+        type: g6-nanode-1
+        image: linode/ubuntu24.04
+        root_pass: "{{ vault_linode_pass }}"   # in vault.yml (blank for now)
+        interfaces:
+          - purpose: vpc
+            subnet_id: "{{ vpc_subnet_id }}"
+            primary: true
+            ipv4:
+              vpc: auto
+        metadata:
+          user_data: "{{ lookup('file', 'cloud-init.yaml') | b64encode }}" # Insert path to cloud-init
+        tags: [monitoring]
+        state: present
+      loop: "{{ new_linodes }}"

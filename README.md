@@ -7,6 +7,16 @@ PCW Ansible playbooks and collections
 | monitor   | prom, grafana playbooks |
 
 # How to use 
+* Install python deps
+```shell
+    uv sync
+```
+
+* Install ansible collections:
+```shell
+    ansible-galaxy collection install -r requirements.yml
+```
+
 * install ansible via pip/package manager
 ```shell
 uv init /
