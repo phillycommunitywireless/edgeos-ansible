@@ -1,0 +1,30 @@
+- name: Install node-exporter on VPC Linodes
+  hosts: servers
+  become: true
+  roles:
+    - node_exporter
+
+- name: install Prometheus
+  hosts: servers
+  become: yes
+  roles:
+  - prometheus
+
+- name: Install and configure Grafana
+  hosts: servers
+  become: true
+  vars:
+    grafana_admin_password: "{{ vault_grafana_admin_password }}"
+    grafana_domain: "grafana.mycompany.com"
+    grafana_datasources:
+      - name: Prometheus
+        type: prometheus
+        access: proxy
+        url: http://localhost:9090
+        is_default: true
+        editable: false
+    grafana_plugins:
+      - grafana-clock-panel
+      - grafana-polystat-panel
+  roles:
+    - grafana

@@ -1,0 +1,43 @@
+myhosts:
+  edgerouters:
+    hosts:
+      router_01: 
+        ansible_connection: network_cli 
+        ansible_network_os: edgeos
+        ansible_host: 192.168.2.1  
+        # ERX login
+        ansible_user: ubnt
+        ansible_password: ubnt
+        ansible_python_interpreter: /usr/bin/python
+        
+        # New hostname to set 
+        hostname: "some-hostname"
+
+        # Initial DHCP server/sw0 address - to be deleted...
+        old_sw_dhcp_server_subnet: 192.168.2.0/24
+        old_sw_address: 192.168.2.1/24
+
+        # New DHCP server/switch subnets and vlans to set 
+        sw_subnet: 10.0.0.1/24
+        sw_router: 10.0.0.1
+        sw_range_end: 10.0.0.255
+        
+        mgmt_subnet: 10.110.0.1/24
+        mgmt_router: 10.110.0.1
+        mgmt_range_end: 10.110.0.255
+        
+        client_subnet: 10.111.0.1/24
+        client_router: 10.111.0.1
+        client_range_end: 10.111.0.255
+        
+        iot_subnet: 10.112.0.1/24
+        iot_router: 10.112.0.1
+        iot_range_end: 10.112.0.255
+        
+        private_subnet: 10.113.0.1/24
+        private_router: 10.113.0.1
+        private_range_end: 10.113.0.255
+  
+  
+    
+

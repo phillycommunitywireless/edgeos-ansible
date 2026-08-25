@@ -1,0 +1,24 @@
+# roles/grafana/tasks/configure.yml
+---
+- name: Deploy Grafana configuration
+  ansible.builtin.template:
+    src: grafana.ini.j2
+    dest: /etc/grafana/grafana.ini
+    owner: root
+    group: grafana
+    mode: "0640"
+  become: true
+  notify: Restart grafana
+
+- name: Create provisioning directories
+  ansible.builtin.file:
+    path: "/etc/grafana/provisioning/{{ item }}"
+    state: directory
+    owner: root
+    group: grafana
+    mode: "0755"
+  loop:
+    - datasources
+    - dashboards
+    - notifiers
+  become: true
